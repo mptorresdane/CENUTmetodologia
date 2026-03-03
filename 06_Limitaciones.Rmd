@@ -1,0 +1,12 @@
+```{r echo = FALSE}
+library(knitr)
+opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE)
+options(width = 100, dplyr.width = 100)
+```
+
+# Limitaciones {#Limitaciones}
+
+## Supuestos fuertes
+## Variables con alta tasa de imputación
+## Posible sesgo no corregido, 
+## Restricciones del modelo, etc

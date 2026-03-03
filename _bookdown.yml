@@ -1,0 +1,15 @@
+book_filename: "CENUT Imputacion: Metodologia"
+delete_merged_file: true
+output_dir: "docs"
+new_session: yes
+always_allow_html: true
+
+rmd_files: [
+  "index.rmd",
+  "01_Introduccion.rmd",
+  "02_MarcoConceptual.rmd",
+  "03_IdentificacionValores.rmd",
+  "04_AnalisisExploratorio.rmd",
+  "05_EstrategiayModelos.rmd",
+  "06_Limitaciones.rmd",
+  "07_Conclusiones.rmd"]

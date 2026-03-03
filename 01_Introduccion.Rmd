@@ -1,0 +1,16 @@
+```{r echo = FALSE}
+library(knitr)
+library(ggplot2)
+opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE)
+options(width = 100, dplyr.width = 100)
+theme_set(theme_light())
+```
+
+# Introducción {#Intro}
+
+## Contexto del operativo censal (objetivo del censo)
+
+## Importancia de la calidad de los datos
+## Marco normativo
+## Justificación de la imputación
+## Objetivos

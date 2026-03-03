@@ -1,0 +1,29 @@
+
+
+# Estrategia y Modelos de Imputación: {#Estrategia}
+
+## Enfoque General
+
+ Incorporar la incertidumbre asociada a los datos faltantes.
+ 
+- Preservar la variabilidad natural de las variables.
+- Reducir el sesgo bajo el supuesto MAR.
+- Aprovechar información histórica y estructural disponible en fuentes oficiales.
+
+## Fundamentación Conceptual: Generar m bases de datos completas. Imputar valores faltantes mediante modelos estocásticos. Analizar cada base por separado. Combinar los resultados usando las reglas definidas o reglas de Rubin (revisar).
+
+## Integración de Fuentes Administrativas Internas
+
+describir las que se usaron y cómo se usaron Marcos geoestadísticos y encuestas.
+
+## Especificación del Modelo de Imputación
+
+Se implementará un esquema de Imputación Múltiple por Cadenas de Ecuaciones (MICE), etc...Modelos condicionales por tipo de variable, predictores, bloques, etc.. m >= 5 (preferiblemente 10–20 si la tasa de no respuesta es alta, elegir un número impar).
+
+## Validación del Modelo
+
+* Comparación de distribuciones observadas vs imputadas
+* Pruebas de bondad de ajuste
+* Análisis de sensibilidad: Cambio en número de imputaciones. 
+* Inclusión/exclusión de variables administrativas (por ejemplo, X variable no se imputó en vendedor de calle por tal razón).
+* Evaluación de coherencia

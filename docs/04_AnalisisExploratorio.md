@@ -1,0 +1,7 @@
+
+
+# Análisis Descriptivo y Exploratorio {#AnalisisExploratorio}
+
+*Antes de imputar* 
+
+Distribución de variables completas, Comparación entre registros completos vs incompletos, Identificación de patrones de no respuesta, Análisis de correlaciones, Evaluación de sesgo potencial. Esta parte es clave para justificar el modelo elegido.
