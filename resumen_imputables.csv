@@ -1,0 +1,20 @@
+variable,0 (válido),-1 (faltante),-2 (no válido),-3 (excluido sin valor),-4 (excluido con valor),total imputables,% imputables s/válidos
+single_tax_registry_flag,1306915,0,0,209110,31250,0,0.0
+economic_unit_record_in_chamber_of_commerce,711836,18724,0,782738,33977,18724,2.56
+obtain_renew_business_registration_in_2023_flag,730393,4,4186,802782,9910,4190,0.57
+use_local_traditional_and_ancestral_knowledge,911155,590297,0,45823,0,590297,39.32
+cash_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+digital_ewallet_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+qr_code_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+debit_credit_card_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+automated_clearing_house_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+other_payment_method_flag,1013439,488013,0,45823,0,488013,32.5
+credit_request_flag,1013439,488013,0,45823,0,488013,32.5
+lending_entity,213449,0,0,1333826,0,0,0.0
+get_the_credit_loan_requested_flag,213449,0,0,1333819,7,0,0.0
+highest_educational_level_achieved,981833,310509,0,44318,210615,310509,24.03
+informant_sex,1190943,310509,0,44318,1505,310509,20.68
+gender,1190943,310509,0,45506,317,310509,20.68
+informant_age,1177675,323773,4,45506,317,323777,21.56
+economic_unit_owner_age_range,1177679,0,0,57580,312016,0,0.0
+payment_method,1013439,533836,0,0,0,533836,34.5
