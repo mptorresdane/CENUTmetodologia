@@ -1,3 +1,10 @@
+---
+title: "Capítulo 3. Identificación de Valores a Imputar"
+author: ""
+date: "`r Sys.Date()`"
+output: html_document
+---
+
 ```{r echo = FALSE}
 library(knitr)
 library(dplyr)
@@ -6,6 +13,11 @@ opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE)
 options(width = 100, dplyr.width = 100)
 ```
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(data.table)
+
+base <- fread("data/Tercera Entrega/data_con_flags.csv")
+```
 
 # Identificación de Valores a Imputar {#Identificacion}
 
@@ -73,6 +85,8 @@ Este análisis se desarrolló en dos niveles complementarios:
 2. La estimación de indicadores de calidad calculados sobre el universo activado en sentido estricto.
 
 En primer lugar, se presenta la distribución de frecuencias absolutas y relativas de cada código de clasificación por variable. En esta tabla, los porcentajes se estiman respecto al total de registros, lo que permite describir la composición general de la variable en términos de datos válidos, casos imputables, ausencias estructurales e inconsistencias de flujo.
+
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 diccionario_vars <- data.frame(
