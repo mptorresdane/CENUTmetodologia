@@ -1,19 +1,235 @@
 ```{r echo = FALSE}
 library(knitr)
+library(dplyr)
+
 opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE)
 options(width = 100, dplyr.width = 100)
 ```
 
+
 # Identificación de Valores a Imputar {#Identificacion}
 
-## Reglas de Validación
+---
 
-Rango de valores válidos. Validación de dominios. Consistencia inter-variable. Coherencia lógica (ejemplo: edad vs. nivel educativo).
+## 3.1 Reglas de Validación
 
-## Clasificación de Casos
+La identificación de valores susceptibles de imputación se fundamenta en las reglas de validación definidas en el diccionario de variables de la base estructural. Estas reglas establecen criterios explícitos de obligatoriedad, dominios válidos y condiciones de consistencia lógica entre variables, con el fin de garantizar la coherencia interna de la información.
 
-Valores faltantes (NA), Valores fuera de rango, Inconsistencias lógicas, Registros duplicados (si aplica).
+Las reglas implementadas se agrupan en tres categorías principales:
 
-## Cuantificación
+### 3.1.1 Obligatoriedad condicional
 
-Porcentaje de no respuesta por variable, Porcentaje por dominio geográfico, Tablas de frecuencia, Mapas de calor o matrices de completitud, etc.
+Corresponde a variables cuya exigencia depende del flujo de las variables en la base de datos estructural según especificaciones, del tipo de instrumento aplicado (CBE, CBEW, VC, CESC, FEST, PMYG, SAFP) o de respuestas previamente registradas.
+
+Bajo este esquema, la ausencia de información se considera inválida únicamente cuando la variable se encuentra activada según las condiciones definidas en el diccionario. Esto permite distinguir entre:
+
+- valores faltantes estructurales (válidos según el diseño),
+- omisiones en variables obligatorias (susceptibles de imputación).
+
+### 3.1.2 Validación de dominio y rango
+
+Para variables categóricas se definieron conjuntos finitos de valores permitidos. Para variables numéricas, como la edad del informante, se establecieron rangos válidos.
+
+Cualquier valor observado fuera del dominio o rango especificado en el diccionario se clasifica como inconsistente y es considerado candidato a tratamiento.
+
+### 3.1.3 Consistencia inter-variable
+
+Se aplicaron reglas de coherencia lógica entre variables relacionadas, verificando que la activación y el contenido de una variable fueran compatibles con los valores registrados en otras variables que determinan su pertinencia.
+
+La aplicación conjunta de estas reglas constituye la base para la clasificación sistemática de registros y la identificación del universo susceptible de imputación.
+
+---
+
+## 3.2 Clasificación de Casos
+
+Las reglas descritas fueron implementadas mediante rutinas automatizadas aplicadas sobre la base de datos. Para cada variable y registro se evaluaron secuencialmente:
+
+1. El cumplimiento de la condición de activación definida por el flujo de las variables.
+2. La existencia o ausencia del dato.
+3. La pertenencia del valor observado al dominio o rango permitido.
+
+Como resultado de esta evaluación se asignó un código de clasificación (bandera), que determina la naturaleza del registro y su tratamiento posterior.
+
+| Código | Interpretación | Tratamiento |
+|--------|---------------|------------|
+| -1 | Cumple condición y no hay dato | Imputable (no respuesta) |
+| -2 | Cumple condición y el dato no pertenece al dominio válido | Imputable (fuera de rango) |
+| -3 | No cumple condición y no hay dato | No imputable (estructural) |
+| -4 | No cumple condición y hay dato | No imputable |
+| 0 | Dato válido | No imputar |
+
+Es importante señalar que no todo valor ausente en la variable original es considerado imputable. Únicamente los registros clasificados como -1 o -2 constituyen universo susceptible de tratamiento.
+
+Este sistema permitió construir indicadores consistentes de imputabilidad por variable y definir el universo efectivo de registros a intervenir en las etapas posteriores del proceso.
+
+# 3.3 Cuantificación de Valores Imputables
+
+Una vez implementado el sistema de clasificación y asignados los códigos correspondientes a cada registro, se procedió a realizar la cuantificación de los resultados para cada variable analizada.
+
+Este análisis se desarrolló en dos niveles complementarios:
+
+1. La caracterización de la distribución global de los códigos de clasificación respecto al total de registros de cada variable.
+
+2. La estimación de indicadores de calidad calculados sobre el universo activado en sentido estricto.
+
+En primer lugar, se presenta la distribución de frecuencias absolutas y relativas de cada código de clasificación por variable. En esta tabla, los porcentajes se estiman respecto al total de registros, lo que permite describir la composición general de la variable en términos de datos válidos, casos imputables, ausencias estructurales e inconsistencias de flujo.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+diccionario_vars <- data.frame(
+  pregunta = c(
+    "IDRUT", "CAMCOMER", "RENOV_CAM", "CONOCIMIENTOS",
+    "FORM_PAGO_EFEC", "FORM_PAGO_TRANS", "FORM_PAGO_QR",
+    "FORM_PAGO_TARJETA", "FORM_PAGO_TRANS_DIREC",
+    "FORM_PAGO_OTRO", "SOLICITUD_CREDITO", "CREDITO",
+    "OBTENCION_CREDITO", "EDUCACION", "SEXO",
+    "GENERO", "EDAD", "RANGO_EDAD"
+  ),
+  variable_flag = c(
+    "single_tax_registry_flag_flag",
+    "economic_unit_record_in_chamber_of_commerce_flag",
+    "obtain_renew_business_registration_in_2023_flag_flag",
+    "use_local_traditional_and_ancestral_knowledge_flag",
+    "cash_payment_method_flag_flag",
+    "digital_ewallet_payment_method_flag_flag",
+    "qr_code_payment_method_flag_flag",
+    "debit_credit_card_payment_method_flag_flag",
+    "automated_clearing_house_payment_method_flag_flag",
+    "other_payment_method_flag_flag",
+    "credit_request_flag_flag",
+    "lending_entity_flag",
+    "get_the_credit_loan_requested_flag_flag",
+    "highest_educational_level_achieved_flag",
+    "informant_sex_flag",
+    "gender_flag",
+    "informant_age_flag",
+    "economic_unit_owner_age_range_flag"
+  ),
+  stringsAsFactors = FALSE
+)
+
+tabla_distribucion <- lapply(diccionario_vars$variable_flag, function(var) {
+  
+  x <- base[[var]]
+  total <- length(x)
+  
+  data.frame(
+    variable_flag = var,
+    total_registros = total,
+    n_0  = sum(x == 0,  na.rm = TRUE),
+    n_m1 = sum(x == -1, na.rm = TRUE),
+    n_m2 = sum(x == -2, na.rm = TRUE),
+    n_m3 = sum(x == -3, na.rm = TRUE),
+    n_m4 = sum(x == -4, na.rm = TRUE),
+    pct_0  = round(sum(x == 0,  na.rm = TRUE) / total * 100, 2),
+    pct_m1 = round(sum(x == -1, na.rm = TRUE) / total * 100, 2),
+    pct_m2 = round(sum(x == -2, na.rm = TRUE) / total * 100, 2),
+    pct_m3 = round(sum(x == -3, na.rm = TRUE) / total * 100, 2),
+    pct_m4 = round(sum(x == -4, na.rm = TRUE) / total * 100, 2)
+  )
+})
+
+tabla_distribucion <- bind_rows(tabla_distribucion) %>%
+  left_join(diccionario_vars, by = "variable_flag") %>%
+  select(
+    pregunta,
+    total_registros,
+    n_0, n_m1, n_m2, n_m3, n_m4,
+    pct_0, pct_m1, pct_m2, pct_m3, pct_m4
+  )
+
+kable(tabla_distribucion)
+```
+
+---
+
+## 3.3.1 Definición del Universo Activado
+
+Para cada variable se definió un **universo activado en sentido estricto**, correspondiente al conjunto de registros en los cuales la variable debía estar informada según las reglas de flujo y obligatoriedad establecidas en el diccionario.
+
+Operativamente, el universo activado está conformado por los registros clasificados con los códigos:
+
+- 0 (dato válido),
+- -1 (no respuesta),
+- -2 (fuera de dominio).
+
+Se excluyen del universo activado:
+
+- -3, que corresponde a ausencia estructural válida según el diseño del instrumento;
+- -4, que corresponde a inconsistencias de activación.
+
+En términos formales, para la variable \( j \), el universo activado se define como:
+
+\[
+U_j = n_j(0) + n_j(-1) + n_j(-2)
+\]
+
+Este universo constituye el denominador adecuado para evaluar la magnitud real de la no respuesta y de las inconsistencias de dominio, ya que incluye únicamente los casos en que la variable era conceptualmente exigible.
+
+---
+
+## 3.3.2 Indicadores de Calidad
+
+Con base en el universo activado definido en la sección anterior, se calcularon los siguientes indicadores para cada variable \( j \):
+
+Sea:
+
+\[
+U_j = n_j(0) + n_j(-1) + n_j(-2)
+\]
+
+donde \( n_j(c) \) representa el número de registros clasificados con el código \( c \).
+
+Los indicadores se definen como:
+
+- **No respuesta:**
+\[
+NoRespuesta_j = \frac{n_j(-1)}{U_j} \times 100
+\]
+
+- **Fuera de dominio:**
+\[
+FueraDominio_j = \frac{n_j(-2)}{U_j} \times 100
+\]
+
+- **Completitud:**
+\[
+Completitud_j = \frac{n_j(0)}{U_j} \times 100
+\]
+
+---
+La siguiente tabla resume, para cada variable, el tamaño del universo activado y los indicadores de calidad asociados, permitiendo evaluar el grado de diligenciamiento efectivo en los casos en que la variable era exigible.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+tabla_indicadores <- lapply(diccionario_vars$variable_flag, function(var) {
+  
+  x <- base[[var]]
+  
+  universo_activado <- sum(x %in% c(0, -1, -2), na.rm = TRUE)
+  
+  n_validos <- sum(x == 0, na.rm = TRUE)
+  n_no_respuesta <- sum(x == -1, na.rm = TRUE)
+  n_fuera_dominio <- sum(x == -2, na.rm = TRUE)
+  
+  data.frame(
+    variable_flag = var,
+    universo_activado = universo_activado,
+    pct_completitud = round(n_validos / universo_activado * 100, 2),
+    pct_no_respuesta = round(n_no_respuesta / universo_activado * 100, 2),
+    pct_fuera_dominio = round(n_fuera_dominio / universo_activado * 100, 2)
+  )
+})
+
+tabla_indicadores <- bind_rows(tabla_indicadores) %>%
+  left_join(diccionario_vars, by = "variable_flag") %>%
+  select(
+    pregunta,
+    universo_activado,
+    pct_completitud,
+    pct_no_respuesta,
+    pct_fuera_dominio
+  )
+
+kable(tabla_indicadores)
+```
+
